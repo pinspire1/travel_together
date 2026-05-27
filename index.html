@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✈️ 出國行前小測驗 by Josie </title>
+    <style>
+        :root {
+            --primary: #2b6cb0;
+            --secondary: #319795;
+            --accent: #b7791f;
+            --bg: #f7fafc;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+        }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { max-width: 650px; width: 100%; background: var(--card-bg); padding: 35px 25px; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.06); }
+        h1 { text-align: center; color: var(--primary); font-size: 26px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #718096; font-size: 14px; margin-bottom: 30px; line-height: 1.6; }
+        
+        /* 輸入姓名畫面 */
+        .name-input-group { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
+        .input-field { display: flex; flex-direction: column; gap: 5px; }
+        .input-field label { font-weight: bold; font-size: 14px; color: #4a5568; }
+        .input-field input { padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; width: 100%; outline: none; transition: border 0.2s; }
+        .input-field input:focus { border-color: var(--primary); }
+        
+        .progress-bar { width: 100%; height: 6px; background: #edf2f7; border-radius: 3px; margin-bottom: 25px; overflow: hidden; display: none; }
+        .progress { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: width 0.3s; }
+        .user-toggle { display: none; background: #edf2f7; border-radius: 12px; padding: 4px; margin-bottom: 25px; }
+        .toggle-btn { flex: 1; border: none; background: transparent; padding: 12px; font-size: 14px; font-weight: bold; color: #4a5568; text-align: center; border-radius: 10px; }
+        .toggle-btn.active { background: var(--primary); color: white; }
+        
+        .question-box { display: none; }
+        .question-box.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+        .question-title { font-size: 17px; font-weight: bold; margin-bottom: 20px; color: #1a202c; line-height: 1.5; border-left: 4px solid var(--secondary); padding-left: 10px; }
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { border: 2px solid #e2e8f0; background: white; padding: 15px; border-radius: 12px; font-size: 14.5px; text-align: left; cursor: pointer; transition: all 0.2s; line-height: 1.4; color: #4a5568; }
+        .option-btn:hover { border-color: var(--secondary); background: #f7fafc; }
+        .option-btn.selected { border-color: var(--primary); background: var(--primary); color: white; }
+        .nav-btns { display: flex; justify-content: space-between; margin-top: 30px; gap: 15px; }
+        .btn { border: none; padding: 14px 25px; font-size: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .btn-start { background: var(--primary); color: white; width: 100%; }
+        .btn-prev { background: #e2e8f0; color: #4a5568; }
+        .btn-next { background: var(--primary); color: white; flex-grow: 1; }
+        .btn-next:disabled { background: #cbd5e0; cursor: not-allowed; }
+        
+        /* 結果畫面 */
+        .result-screen { display: none; animation: fadeIn 0.5s ease-in-out; }
+        .section-title { font-size: 16px; font-weight: bold; color: var(--primary); margin-top: 25px; margin-bottom: 15px; border-bottom: 2px solid #edf2f7; padding-bottom: 6px; }
+        .personal-analysis { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
+        @media(min-width: 550px) { .personal-analysis { grid-template-columns: 1fr 1fr; } }
+        .analysis-card { background: #f7fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 14px; }
+        .analysis-card.userA { border-top: 4px solid var(--primary); }
+        .analysis-card.userB { border-top: 4px solid var(--secondary); }
+        .card-name { font-weight: bold; font-size: 15px; margin-bottom: 8px; color: #1a202c; }
+        
+        .psychology-box { background: #f0fff4; border: 1px solid #c6f6d5; padding: 20px; border-radius: 14px; margin-top: 20px; line-height: 1.6; }
+        .psychology-title { font-weight: bold; color: #22543d; font-size: 17px; margin-bottom: 10px; }
+        .psychology-text { font-size: 14px; color: #2d3748; }
+        
+        .result-card { background: #fff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 14px; max-height: 250px; overflow-y: auto; }
+        .comparison-item { padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13.5px; }
+        .comparison-item:last-child { border-bottom: none; }
+        .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 5px; }
+        .tag-match { background: #ebf8ff; color: #2b6cb0; }
+        .tag-diff { background: #edf2f7; color: #4a5568; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 歡迎與姓名輸入畫面 -->
+    <div id="intro-screen">
+        <h1>✈️ 出國行前雙人小測驗</h1>
+        <p class="subtitle">不同的靈魂相遇，會交織出什麼樣的旅行美學？<br>輸入兩人的名字，開啟專屬的旅遊心理學盲測報告。</p>
+        
+        <div class="name-input-group">
+            <div class="input-field">
+                <label>第一位旅人（個案A）的名字：</label>
+                <input type="text" id="input-nameA" placeholder="例如：Josie" value="個案 A">
+            </div>
+            <div class="input-field">
+                <label>第二位旅人（朋友）的名字：</label>
+                <input type="text" id="input-nameB" placeholder="例如：Chloe" value="朋友">
+            </div>
+        </div>
+        <button class="btn btn-start" onclick="startQuiz()">開始雙人盲測</button>
+    </div>
+
+    <!-- 測試進行畫面 -->
+    <div id="quiz-screen" style="display: none;">
+        <h1 id="quiz-title">✈️ 旅遊心理學盲測</h1>
+        <p class="subtitle" id="quiz-subtitle">請放鬆憑直覺作答，不要偷看對方的備忘錄喔！</p>
+        
+        <div class="user-toggle" id="user-toggle-bar">
+            <div class="toggle-btn active" id="tab-name">作答中</div>
+        </div>
+
+        <div class="progress-bar" id="p-bar"><div class="progress" id="progress"></div></div>
+        <div id="questions-container"></div>
+
+        <div class="nav-btns">
+            <button class="btn btn-prev" id="prev-btn" onclick="prevQuestion()" style="visibility: hidden;">上一題</button>
+            <button class="btn btn-next" id="next-btn" disabled>下一題</button>
+        </div>
+    </div>
+
+    <!-- 結果揭曉畫面 -->
+    <div id="result-screen" class="result-screen">
+        <h1>📊 旅遊心理學・雙人契合度報告</h1>
+        <p class="subtitle">洞察出遊動機與決策密碼，重塑專屬的旅行質量。</p>
+        
+        <div class="section-title">🔍 兩位旅人的行為特質剖析</div>
+        <div class="personal-analysis">
+            <div class="analysis-card userA">
+                <div class="card-name" id="result-nameA">👤 旅人 A</div>
+                <div id="analysis-A" class="psychology-text"></div>
+            </div>
+            <div class="analysis-card userB">
+                <div class="card-name" id="result-nameB">👥 旅人 B</div>
+                <div id="analysis-B" class="psychology-text"></div>
+            </div>
+        </div>
+
+        <div class="section-title">🔮 旅伴相容性深度解析</div>
+        <div class="psychology-box">
+            <div class="psychology-title" id="match-title"></div>
+            <div class="psychology-text" id="match-desc"></div>
+        </div>
+
+        <div class="section-title">🎯 12 題選擇同步對照</div>
+        <div class="result-card">
+            <div id="comparison-list"></div>
+        </div>
+        
+        <button class="btn btn-next" style="margin-top:25px; width:100%;" onclick="location.reload()">重新進行盲測</button>
+    </div>
+</div>
+
+<script>
+    let nameA = "個案 A";
+    let nameB = "朋友";
+    let currentUser = 'A';
+    let currentIdx = 0;
+    const answers = { A: {}, B: {} };
+
+    const questions = [
+        { title: "1.【核心出遊動機】想像漫步在異國街頭，你最希望這趟旅行帶給你什麼？", options: [
+            { key: "A", text: "掌控與成就：把心儀的景點與經典美食，井然有序地逐一解鎖。" },
+            { key: "B", text: "轉換與減壓：徹底抽離台灣的日常壓力，享受大腦放空與異國氛圍。" },
+            { key: "C", text: "新奇與冒險：探索沒去過的隱藏秘境，發掘出乎意料的意外驚喜。" }]
+        },
+        { title: "2.【時間與行程節奏】在安排某一天的具體動線時，你內心的理想狀態是？", options: [
+            { key: "A", text: "結構飽滿流：景點、交通接駁時間都有合理的預算，走起來流暢有效率。" },
+            { key: "B", text: "留白漫遊流：一天只抓一兩個核心大點，其餘時間看心情隨性駐留。" },
+            { key: "C", text: "隨機應變流：大方向決定就好，現場看天氣、體力和當下心情隨時調整。" }]
+        },
+        { title: "3.【出發前的心態準備】距離飛機起飛還有三天，你最投入的狀態是？", options: [
+            { key: "A", text: "反覆確認：仔細檢查行李清單、票券預約憑證，確保萬無一失。" },
+            { key: "B", text: "滿懷期待：興奮地刷IG影片或小紅書，收集當地的美照與必買清單。" },
+            { key: "C", text: "佛系隨緣：東西收拾好就好，相信船到橋頭自然直，現場再說。" }]
+        },
+        { title: "4.【突發排隊考驗】原本想去的名店大排長龍，預估現場要罰站等待1.5小時，你會？", options: [
+            { key: "A", text: "來都來了：當作旅行的經典體驗，和旅伴一邊滑手機聊天一邊等。" },
+            { key: "B", text: "理性停損：時間成本太高，立刻拿出備案清單改吃附近的其他美食。" },
+            { key: "C", text: "交給命運：到附近晃晃看看有沒有別的有趣小店，不一定要吃這家。" }]
+        },
+        { title: "5.【環境適應與金錢】在挑選這趟旅程的飯店/住宿時，你的決策焦點是？", options: [
+            { key: "A", text: "高交通機能：離車站越近越好、機能發達，能幫每天行程省下大把體力。" },
+            { key: "B", text: "高精神回報：注重房間的舒適度、採光或設計感，回飯店要有犒賞自己的享受感。" },
+            { key: "C", text: "高性價比值：乾淨安全即可，預算想盡量省下來拿去吃大餐或買戰利品。" }]
+        },
+        { title: "6.【當計畫遇上暴雨】出門前突然下起狂風暴雨，原本期待的戶外美景去不成了，你會？", options: [
+            { key: "A", text: "迅速變陣：立刻把改去室內商場、美術館或水族館的備案日程掏出來執行。" },
+            { key: "B", text: "隨遇而安：找一家極有質感的咖啡廳，兩個人坐下來聽雨聊天、享受下午茶。" },
+            { key: "C", text: "風雨無阻：買把雨傘按照原計畫出發，體驗雨中異國的另一種獨特景致。" }]
+        },
+        { title: "7.【飲食預算的偏好】關於這趟旅行的飲食地圖，你希望把大部分預算花在？", options: [
+            { key: "A", text: "錯落有致：1-2餐吃非常有儀式感的高級名店，其他餐期吃平價在地美食平衡。" },
+            { key: "B", text: "精緻吃貨：只要評價高、有在地特色或米其林推薦，經費稍微超標也完全願意。" },
+            { key: "C", text: "地道常民：比起精緻大餐，更想嘗試當地的菜市場、居酒屋或路邊特色小吃。" }]
+        },
+        { title: "8.【每日出門的活力考驗】在國外期間，你期望每天早上大約幾點跨出飯店大門？", options: [
+            { key: "A", text: "08:30 晨型探險家：早起空氣好、人潮少，可以拍到最乾淨的空景。" },
+            { key: "B", text: "09:30 悠閒度假派：睡到自然醒，在超商或飯店優雅吃完早餐再出發。" },
+            { key: "C", text: "動態調整流：不設定死時間，看前一天幾點回飯店、疲憊度如何來決定。" }]
+        },
+        { title: "9.【逛街購物與共處模式】進入當地最熱門的購物商場或步行街時，你喜歡？", options: [
+            { key: "A", text: "解散尋寶：原地解散各自逛！約好2小時後在某個定點集合，效率最高。" },
+            { key: "B", text: "連體互助：兩個人一起走，互相幫忙看適不適合、給穿搭或挑選意見。" },
+            { key: "C", text: "隨興陪考：我沒有特定想買的，主要陪旅伴逛，幫忙提戰利品或側拍照片。" }]
+        },
+        { title: "10.【體力耗盡時的選擇】連續走了好幾天路，此時腳底酸痛，但距離下一個景點還有15分鐘步行，你會？", options: [
+            { key: "A", text: "用意志力克制：堅持走完既定行程，等晚上回房間再一次貼休足時間犒賞自己。" },
+            { key: "B", text: "用金錢換體力：果斷提議招計程車或找大眾運輸，不讓雙腳疲憊毀了晚上的心情。" },
+            { key: "C", text: "即時停損放空：立刻找最近的座位或超商，坐著放空休息15分鐘再繼續。" }]
+        },
+        { title: "11.【回飯店後的隱私與空間】辛苦一天回到房間，你最不能接受以下哪種狀況？", options: [
+            { key: "A", text: "生活習慣極端不同：例如房間冷氣溫度調不攏、或是開關燈時間無法達成共識。" },
+            { key: "B", text: "洗漱卡關乾等：已經累到極限，但浴室被卡住很久（如要泡澡/卸妝），無法即時躺平。" },
+            { key: "C", text: "動線混亂：戰利品和行李箱把走道堆滿，空間感變得很壓抑、讓人心情阿雜。" }]
+        },
+        { title: "12.【分頭行動的心理接受度】若兩個人在某個下午想去的景點完全相反，你內心真正的想法是？", options: [
+            { key: "A", text: "舉雙手贊成：分開逛 3 小時各自滿足渴望，傍晚約餐廳集合，分享彼此的見聞。" },
+            { key: "B", text: "希望求同存異：時間各半，兩個人一起去對方的點速速逛完，陪伴的感覺更重要。" },
+            { key: "C", text: "客隨主便流：以對方的意願為主，自己換個時間再去或下次再去，旅伴開心就好。" }]
+        }
+    ];
+
+    function startQuiz() {
+        const nA = document.getElementById('input-nameA').value.trim();
+        const nB = document.getElementById('input-nameB').value.trim();
+        if(nA) nameA = nA;
+        if(nB) nameB = nB;
+
+        document.getElementById('intro-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        document.getElementById('p-bar').style.display = 'block';
+        document.getElementById('user-toggle-bar').style.display = 'flex';
+        
+        initQuestions();
+        switchUser('A');
+    }
+
+    function initQuestions() {
+        const container = document.getElementById('questions-container');
+        container.innerHTML = '';
+        questions.forEach((q, qIdx) => {
+            const qBox = document.createElement('div');
+            qBox.className = `question-box q-${qIdx}`;
+            if(qIdx === 0) qBox.classList.add('active');
+
+            const title = document.createElement('div');
+            title.className = 'question-title';
+            title.innerText = q.title;
+            qBox.appendChild(title);
+
+            const optsDiv = document.createElement('div');
+            optsDiv.className = 'options';
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn opt-${opt.key}`;
+                btn.innerText = opt.text;
+                btn.onclick = () => selectOption(qIdx, opt.key);
+                optsDiv.appendChild(btn);
+            });
+            qBox.appendChild(optsDiv);
+            container.appendChild(qBox);
+        });
+    }
+
+    function switchUser(user) {
+        currentUser = user;
+        currentIdx = 0;
+        
+        const tab = document.getElementById('tab-name');
+        tab.innerText = user === 'A' ? `${nameA} 正創作答中` : `${nameB} 正創作答中`;
+        
+        document.querySelectorAll('.question-box').forEach(b => b.classList.remove('active'));
+        document.querySelector('.q-0').classList.add('active');
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        
+        const hasSelected = answers[currentUser][0] !== undefined;
+        document.getElementById('next-btn').disabled = !hasSelected;
+        if(hasSelected) {
+            const key = answers[currentUser][0];
+            document.querySelector(`.q-0 .opt-${key}`).classList.add('selected');
+        }
+
+        document.getElementById('prev-btn').style.visibility = 'hidden';
+        updateProgress();
+        updateNextBtnText();
+    }
+
+    function selectOption(qIdx, key) {
+        answers[currentUser][qIdx] = key;
+        const activeBox = document.querySelector(`.q-${qIdx}`);
+        activeBox.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        activeBox.querySelector(`.opt-${key}`).classList.add('selected');
+        document.getElementById('next-btn').disabled = false;
+    }
+
+    function nextQuestion() {
+        if (currentIdx < questions.length - 1) {
+            document.querySelector(`.q-${currentIdx}`).classList.remove('active');
+            currentIdx++;
+            document.querySelector(`.q-${currentIdx}`).classList.add('active');
+            
+            const hasSelected = answers[currentUser][currentIdx] !== undefined;
+            document.getElementById('next-btn').disabled = !hasSelected;
+            document.getElementById('prev-btn').style.visibility = 'visible';
+            
+            if(hasSelected) {
+                const key = answers[currentUser][currentIdx];
+                document.querySelector(`.q-${currentIdx} .opt-${key}`).classList.add('selected');
+            }
+        } else {
+            if (currentUser === 'A') {
+                alert(`🎉 測試過半！${nameA} 作答完畢。接下來請把手機交給【${nameB}】點擊確認開始。`);
+                switchUser('B');
+            } else {
+                showResults();
+            }
+        }
+        updateProgress();
+        updateNextBtnText();
+    }
+
+    function prevQuestion() {
+        if (currentIdx > 0) {
+            document.querySelector(`.q-${currentIdx}`).classList.remove('active');
+            currentIdx--;
+            document.querySelector(`.q-${currentIdx}`).classList.add('active');
+            document.getElementById('next-btn').disabled = false;
+            if(currentIdx === 0) document.getElementById('prev-btn').style.visibility = 'hidden';
+            
+            const key = answers[currentUser][currentIdx];
+            document.querySelector(`.q-${currentIdx} .opt-${key}`).classList.add('selected');
+        }
+        updateProgress();
+        updateNextBtnText();
+    }
+
+    function updateProgress() {
+        const percent = ((currentIdx + 1) / questions.length) * 100;
+        document.getElementById('progress').style.width = `${percent}%`;
+    }
+
+    function updateNextBtnText() {
+        const btn = document.getElementById('next-btn');
+        if(currentIdx === questions.length - 1) {
+            btn.innerText = currentUser === 'A' ? `換下一個人 (${nameB})` : "觀開雙人契合度報告";
+            btn.onclick = () => nextQuestion();
+        } else {
+            btn.innerText = "下一題";
+            btn.onclick = () => nextQuestion();
+        }
+    }
+
+    function getPersonalProfile(ansObj, uName) {
+        let counts = { A: 0, B: 0, C: 0 };
+        for (let k in ansObj) counts[ansObj[k]]++;
+        
+        if (counts.A >= counts.B && counts.A >= counts.C) {
+            return `🎯 <b>【結構美學領航員】</b><br>${uName} 在旅遊心理學中展現了對『掌控與內在安全感』的偏好。你喜歡流暢、高效的動線管理，認為把計畫完美實踐就是極大的旅遊成就感來源，能為旅程提供定海神針般的方向感。`;
+        } else if (counts.B >= counts.A && counts.B >= counts.C) {
+            return `🌿 <b>【時空轉換療癒者】</b><br>${uName} 將旅行定義為一種精神上的『復原力重建（Restorative Experience）』。你特別看重異國環境帶來的氛圍感與舒適度，比起走馬看花，你更渴望透過放慢腳步來犒賞心靈。`;
+        } else {
+            return `✨ <b>【體驗主義追尋者】</b><br>${uName} 屬於典型的『環境開放型遊客』。你對未知的變化充滿包容力，看重當下的真實互動與新鮮感。不管是意外的驚喜小店還是迷路，在你眼裡都是旅行中最生動的風景。`;
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+
+        // 注入自訂姓名
+        document.getElementById('result-nameA').innerText = `👤 ${nameA} 的旅遊心理特質`;
+        document.getElementById('result-nameB').innerText = `👥 ${nameB} 的旅遊心理特質`;
+
+        document.getElementById('analysis-A').innerHTML = getPersonalProfile(answers['A'], nameA);
+        document.getElementById('analysis-B').innerHTML = getPersonalProfile(answers['B'], nameB);
+
+        let matchCount = 0;
+        let diffCount = 0;
+        const listContainer = document.getElementById('comparison-list');
+        listContainer.innerHTML = '';
+
+        questions.forEach((q, idx) => {
+            const ansA = answers['A'][idx];
+            const ansB = answers['B'][idx];
+            const isMatch = ansA === ansB;
+            if (isMatch) matchCount++;
+            if ((ansA === 'A' && ansB === 'C') || (ansA === 'C' && ansB === 'A')) diffCount++;
+
+            const item = document.createElement('div');
+            item.className = 'comparison-item';
+            const textA = q.options.find(o => o.key === ansA).text.split('：')[0];
+            const textB = q.options.find(o => o.key === ansB).text.split('：')[0];
+
+            item.innerHTML = `
+                <strong>${q.title.split('】')[0]}】</strong><br>
+                ${nameA}：<span style="color:var(--primary)">${textA}</span> | 
+                ${nameB}：<span style="color:var(--secondary)">${textB}</span>
+                ${isMatch ? '<span class="tag tag-match">完美共振</span>' : '<span class="tag tag-diff">多元火花</span>'}
+            `;
+            listContainer.appendChild(item);
+        });
+
+        const mTitle = document.getElementById('match-title');
+        const mDesc = document.getElementById('match-desc');
+        const syncRate = Math.round((matchCount / 12) * 100);
+
+        // 根據心理學理論給出正向、有趣的雙人深度解析
+        if (matchCount >= 8) {
+            mTitle.innerHTML = `🌟【心靈雙生律動圈】 (同步率 ${syncRate}%)`;
+            mDesc.innerHTML = `<b>💡 旅遊心理學深度解碼：</b><br>恭喜 ${nameA} 和 ${nameB}！你們在出遊動機（Push Factors）與應變策略上展現了極高頻率的『心靈共振』。在旅遊心理學中，這種高度的一致性意味著你們對旅行『幸福感』的定義幾乎重疊。你們不需要耗費能量在頻繁的妥協與溝通上，無論是共享一頓精緻晚餐，還是共同在清晨開拓美景，你們都能瞬間抓到對方的節奏。這種高默契的旅伴關係，能讓異國旅行變成一場『零內耗、高回報』的感官饗宴！`;
+        } else if (diffCount >= 4) {
+            mTitle.innerHTML = `🌍【高階大人系的雙星共生】 (同步率 ${syncRate}%)`;
+            mDesc.innerHTML = `<b>💡 旅遊心理學深度解碼：</b><br>這是一個充滿智慧與獨立魅力的旅行組合！${nameA} 和 ${nameB} 的選擇恰好演繹了旅遊心理學中的『自我實現（Self-Actualization）特質』。你們深刻理解彼此都是獨立、且具備不同生活美學的成熟個體。你們在旅途中極度適合採取『大方向依賴陪伴、小節奏各開探測器』的精緻玩法（例如下午安排 2 小時的各自尋寶，傍晚在清酒吧匯合）。你們的差異非但不會成為阻礙，反而會因為深刻的尊重，讓彼此看見雙倍豐富的日本世界！`;
+        } else {
+            mTitle.innerHTML = `🧩【黃金矩陣智囊團】 (同步率 ${syncRate}%)`;
+            mDesc.innerHTML = `<b>💡 旅遊心理學深度解碼：</b><br>根據旅遊心理學的『決策互補模型（Complementary Model）』，${nameA} 和 ${nameB} 是天生的功能型神組合！你們的旅遊特質錯落有致——一個人的細緻規劃能為旅程構築起堅實的安全感與秩序，而另一個人的開闊隨興則能為旅途點綴出意想不到的彩蛋與人情味。你們在一起，恰好形成了一具完美的『防禦性開拓矩陣』，既不會因為過度嚴格而彈性疲乏，也不會因為過度隨興而錯失名店。你們是彼此最安心的後盾，也是最棒的驚喜製造機！`;
+        }
+    }
+</script>
+
+</body>
+</html>
