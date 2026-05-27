@@ -75,26 +75,26 @@
 <div class="container">
     <!-- 歡迎與姓名輸入畫面 -->
     <div id="intro-screen">
-        <h1>✈️ 出國行前雙人小測驗</h1>
-        <p class="subtitle">不同的靈魂相遇，會交織出什麼樣的旅行美學？<br>輸入兩人的名字，開啟專屬的旅遊心理學盲測報告。</p>
+        <h1>✈️ 出國行前雙人小測驗 by Josie</h1>
+        <p class="subtitle"> ㄏㄟˊ～ 不同的靈魂相遇，會交織出什麼樣的旅行美學呢？<br> 請輸入你跟朋友的名字，一起進行旅遊適配度測驗吧。</p>
         
         <div class="name-input-group">
             <div class="input-field">
-                <label>第一位旅人（個案A）的名字：</label>
+                <label>第一位旅人（我的名字是...）的名字：</label>
                 <input type="text" id="input-nameA" placeholder="例如：Josie" value="個案 A">
             </div>
             <div class="input-field">
-                <label>第二位旅人（朋友）的名字：</label>
+                <label>第二位旅人（我的旅伴叫做...）的名字：</label>
                 <input type="text" id="input-nameB" placeholder="例如：Chloe" value="朋友">
             </div>
         </div>
-        <button class="btn btn-start" onclick="startQuiz()">開始雙人盲測</button>
+        <button class="btn btn-start" onclick="startQuiz()">開始雙人測驗</button>
     </div>
 
     <!-- 測試進行畫面 -->
     <div id="quiz-screen" style="display: none;">
-        <h1 id="quiz-title">✈️ 旅遊心理學盲測</h1>
-        <p class="subtitle" id="quiz-subtitle">請放鬆憑直覺作答，不要偷看對方的備忘錄喔！</p>
+        <h1 id="quiz-title">✈️ 旅遊適配度測驗</h1>
+        <p class="subtitle" id="quiz-subtitle">請放鬆憑直覺作答，不要偷看對方作答呦！</p>
         
         <div class="user-toggle" id="user-toggle-bar">
             <div class="toggle-btn active" id="tab-name">作答中</div>
